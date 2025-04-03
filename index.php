@@ -1,9 +1,6 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-?>
-
-<?php
 
 // Database credentials
 $servername = "formdb.mysql.database.azure.com"; // Your Azure MySQL server
@@ -13,27 +10,36 @@ $database = "event_registration"; // Your database name
 $port = 3306;
 
 // SSL options
-$ssl_ca = "/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem";
-// Path to Azure MySQL SSL certificate
+$ssl_ca = "/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem"; 
 
 // Create MySQLi connection with SSL
 $conn = mysqli_init();
 mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
-mysqli_real_connect($conn, $servername, $username, $password, $database, 3306, NULL, MYSQLI_CLIENT_SSL);
+mysqli_real_connect($conn, $servername, $username, $password, $database, $port, NULL, MYSQLI_CLIENT_SSL);
 
 // Check connection
 if (mysqli_connect_errno()) {
     die("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
-// Get form data
-$name = $_POST['name'];
-$email = $_POST['email'];
-$phone = $_POST['phone'];
-$event = $_POST['event'];
-$date = $_POST['date'];
-$category = $_POST['category'];
-$comments = $_POST['comments'];
+// Debugging: Check if data is received
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    var_dump($_POST);
+}
+
+// Validate and sanitize input fields
+$name = isset($_POST['name']) ? htmlspecialchars(trim($_POST['name'])) : null;
+$email = isset($_POST['email']) ? htmlspecialchars(trim($_POST['email'])) : null;
+$phone = isset($_POST['phone']) ? htmlspecialchars(trim($_POST['phone'])) : null;
+$event = isset($_POST['event']) ? htmlspecialchars(trim($_POST['event'])) : null;
+$date = isset($_POST['date']) ? htmlspecialchars(trim($_POST['date'])) : null;
+$category = isset($_POST['category']) ? htmlspecialchars(trim($_POST['category'])) : null;
+$comments = isset($_POST['comments']) ? htmlspecialchars(trim($_POST['comments'])) : null;
+
+// Check if required fields are missing
+if (!$name || !$email || !$phone || !$event || !$date || !$category) {
+    die("Error: Required fields missing.");
+}
 
 // Prepare SQL statement
 $sql = "INSERT INTO registrations (name, email, phone, event_name, event_date, category, comments)
