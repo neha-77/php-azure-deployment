@@ -4,27 +4,25 @@ ini_set('display_errors', 1);
 
 // Database credentials
 $servername = "formdb.mysql.database.azure.com";
-$username = "dbadmin"; // Your MySQL user
+$username = "dbadmin";
 $password = "Secure@1234";
 $database = "event_registration";
 $port = 3306;
 
-// SSL Certificate Path (Use Correct Azure Path)
+// SSL Certificate Path
 $ssl_ca = "/home/site/wwwroot/certs/DigiCertGlobalRootCA.crt.pem";
-mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
 
-
-// Create MySQLi connection with SSL
+// Initialize MySQLi connection
 $conn = mysqli_init();
 if (!$conn) {
     die("MySQL initialization failed.");
 }
 
-// Enable SSL for MySQL connection
+// Set SSL
 mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
-$success = mysqli_real_connect($conn, $servername, $username, $password, $database, $port, NULL, MYSQLI_CLIENT_SSL | MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT);
 
-if (!$success) {
+// Attempt connection
+if (!mysqli_real_connect($conn, $servername, $username, $password, $database, $port, NULL, MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT)) {
     die("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
@@ -34,13 +32,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 
 // Validate and sanitize input fields
-$name = isset($_POST['name']) ? htmlspecialchars(trim($_POST['name'])) : null;
-$email = isset($_POST['email']) ? htmlspecialchars(trim($_POST['email'])) : null;
-$phone = isset($_POST['phone']) ? htmlspecialchars(trim($_POST['phone'])) : null;
-$event = isset($_POST['event']) ? htmlspecialchars(trim($_POST['event'])) : null;
-$date = isset($_POST['date']) ? htmlspecialchars(trim($_POST['date'])) : null;
-$category = isset($_POST['category']) ? htmlspecialchars(trim($_POST['category'])) : null;
-$comments = isset($_POST['comments']) ? htmlspecialchars(trim($_POST['comments'])) : null;
+$name = isset($_POST['name']) ? trim(htmlspecialchars($_POST['name'])) : null;
+$email = isset($_POST['email']) ? trim(htmlspecialchars($_POST['email'])) : null;
+$phone = isset($_POST['phone']) ? trim(htmlspecialchars($_POST['phone'])) : null;
+$event = isset($_POST['event']) ? trim(htmlspecialchars($_POST['event'])) : null;
+$date = isset($_POST['date']) ? trim(htmlspecialchars($_POST['date'])) : null;
+$category = isset($_POST['category']) ? trim(htmlspecialchars($_POST['category'])) : null;
+$comments = isset($_POST['comments']) ? trim(htmlspecialchars($_POST['comments'])) : null;
 
 // Check if required fields are missing
 if (!$name || !$email || !$phone || !$event || !$date || !$category) {
@@ -55,9 +53,9 @@ if (!$stmt) {
     die("Prepare failed: " . $conn->error);
 }
 
+// Bind parameters and execute
 $stmt->bind_param("sssssss", $name, $email, $phone, $event, $date, $category, $comments);
 
-// Execute and check if successful
 if ($stmt->execute()) {
     echo "Registration successful!";
 } else {
