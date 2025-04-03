@@ -13,7 +13,8 @@ $database = "event_registration"; // Your database name
 $port = 3306;
 
 // SSL options
-$ssl_ca = "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem"; // Path to Azure MySQL SSL certificate
+$ssl_ca = "/home/site/wwwroot/DigiCertGlobalRootCA.crt.pem";
+// Path to Azure MySQL SSL certificate
 
 // Create MySQLi connection with SSL
 $conn = mysqli_init();
