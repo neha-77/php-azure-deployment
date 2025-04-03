@@ -10,8 +10,7 @@ $database = "event_registration"; // Your database name
 $port = 3306;
 
 // SSL options
-$ssl_ca = "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem";
-
+$ssl_ca = "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem";  
 
 // Create MySQLi connection with SSL
 $conn = mysqli_init();
