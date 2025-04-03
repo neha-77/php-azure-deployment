@@ -11,6 +11,8 @@ $port = 3306;
 
 // SSL Certificate Path (Use Correct Azure Path)
 $ssl_ca = "/home/site/wwwroot/certs/DigiCertGlobalRootCA.crt.pem";
+mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
+
 
 // Create MySQLi connection with SSL
 $conn = mysqli_init();
