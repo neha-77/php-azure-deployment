@@ -3,22 +3,26 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database credentials
-$servername = "formdb.mysql.database.azure.com"; // Your Azure MySQL server
-$username = "dbadmin"; // Use "username@servername"
-$password = "Secure@1234"; // Your MySQL password
-$database = "event_registration"; // Your database name
+$servername = "formdb.mysql.database.azure.com";
+$username = "dbadmin"; // Your MySQL user
+$password = "Secure@1234";
+$database = "event_registration";
 $port = 3306;
 
-// SSL options
+// SSL Certificate Path (Use Correct Azure Path)
+$ssl_ca = "/home/site/wwwroot/certs/DigiCertGlobalRootCA.crt.pem";
 
-$ssl_ca = "/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem";
 // Create MySQLi connection with SSL
 $conn = mysqli_init();
-mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
-mysqli_real_connect($conn, $servername, $username, $password, $database, $port, NULL, MYSQLI_CLIENT_SSL);
+if (!$conn) {
+    die("MySQL initialization failed.");
+}
 
-// Check connection
-if (mysqli_connect_errno()) {
+// Enable SSL for MySQL connection
+mysqli_ssl_set($conn, NULL, NULL, $ssl_ca, NULL, NULL);
+$success = mysqli_real_connect($conn, $servername, $username, $password, $database, $port, NULL, MYSQLI_CLIENT_SSL | MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT);
+
+if (!$success) {
     die("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
@@ -42,10 +46,13 @@ if (!$name || !$email || !$phone || !$event || !$date || !$category) {
 }
 
 // Prepare SQL statement
-$sql = "INSERT INTO registrations (name, email, phone, event_name, event_date, category, comments)
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO registrations (name, email, phone, event_name, event_date, category, comments) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
+
 $stmt->bind_param("sssssss", $name, $email, $phone, $event, $date, $category, $comments);
 
 // Execute and check if successful
